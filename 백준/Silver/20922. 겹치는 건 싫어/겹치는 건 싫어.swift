@@ -1,0 +1,36 @@
+//1025번 제곱수 찾기
+let t = readLine()!.split(separator: " ").map{Int(String($0))!}
+let (n,k) = (t[0],t[1])
+
+let arr = readLine()!.split(separator: " ").map{Int(String($0))!}
+
+var dict : [Int:Int] = [:]
+var len = 0
+var maxLen = 0
+var start = 0, end = 0
+
+while end < n {
+    //새로 추가할 수의 count가 없거나 k이하라면 추가
+    if dict[arr[end]] == nil {
+        dict[arr[end]] = 1
+        end += 1
+        len += 1
+    } else {
+        let value = dict[arr[end]]!
+        if value + 1 <= k {
+            dict[arr[end]] = value + 1
+            end += 1
+            len += 1
+        } else {
+            dict[arr[start]]! -= 1
+            if dict[arr[start]]! == 0 {
+                dict[arr[start]] = nil
+            }
+            start += 1
+            len -= 1
+        }
+    }
+    maxLen = max(maxLen,len)
+}
+
+print(maxLen)
