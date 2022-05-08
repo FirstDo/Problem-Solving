@@ -1,46 +1,41 @@
-//1303전투
-import Foundation
 let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-let (N,M) = (t[0],t[1])
+let (w,h) = (t[0], t[1])
 
 var graph = [[Character]]()
+var visit = Array(repeating: Array(repeating: false, count: w), count: h)
 
-for _ in 0..<M {
-	graph.append(Array(readLine()!))
+let dx = [1,-1,0,0]
+let dy = [0,0,1,-1]
+
+for _ in 0..<h {
+    graph.append(Array(readLine()!))
 }
 
-var power: [Character: Int] = ["W": 0, "B": 0]
+var answer: [Character: Int] = ["W": 0, "B": 0]
+var cnt = 0
 
-func bfs(_ x: Int, _ y: Int, _ ch: Character) {
-	let dx = [1,-1,0,0]
-	let dy = [0,0,1,-1]
-
-	graph[x][y] = "-"
-	var queue = [(x,y)]
-	var idx = 0
-
-	while queue.count > idx {
-		let cur = queue[idx]
-		idx += 1
-
-		for i in 0..<4 {
-			let (nx,ny) = (cur.0 + dx[i], cur.1 + dy[i])
-			if (0..<M).contains(nx) && (0..<N).contains(ny) && graph[nx][ny] == ch {
-				graph[nx][ny] = "-"
-				queue.append((nx,ny))
-			}
-		}
-	}
-	power[ch]! += Int(pow(Double(idx), 2.0))
+for i in 0..<h {
+    for j in 0..<w {
+        if !visit[i][j] {
+            cnt = 0
+            dfs(i,j,graph[i][j])
+            answer[graph[i][j]]! += cnt * cnt
+        }
+    }
 }
 
-
-for i in 0..<M {
-	for j in 0..<N {
-		if graph[i][j] != "-" {
-			bfs(i,j,graph[i][j])
-		}
-	}
+func dfs(_ x: Int, _ y: Int, _ c: Character) {
+    visit[x][y] = true
+    cnt += 1
+    
+    for i in 0..<4 {
+        let nx = x + dx[i]
+        let ny = y + dy[i]
+        
+        if (0..<h) ~= nx && (0..<w) ~= ny && !visit[nx][ny] && graph[nx][ny] == c {
+            dfs(nx, ny, c)
+        }
+    }
 }
 
-print(power["W"]!, power["B"]!)
+print(answer["W"]!, answer["B"]!)
