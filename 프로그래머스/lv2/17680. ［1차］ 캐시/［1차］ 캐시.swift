@@ -3,28 +3,22 @@ import Foundation
 func solution(_ cacheSize:Int, _ cities:[String]) -> Int {
     if cacheSize == 0 { return cities.count * 5 }
     
-    var cache = [String: Int]()
-    var time = 0
+    let cities = cities.map { $0.lowercased() }
     
-    for (index, city) in cities.enumerated() {
-        let city = city.lowercased()
-        // hit
-        if cache[city] != nil {
-            time += 1
-            cache[city] = index
+    var cache = [String: Int]()
+    var clock = 0
+    var totalTime = 0
+    
+    for city in cities {
+        if cache[city] == nil && cache.count >= cacheSize {
+            let deleteKey = cache.sorted { $0.value < $1.value }.first!.key
+            cache[deleteKey] = nil
         }
-        // miss
-        else {
-            time += 5
-            
-            if cache.count >= cacheSize {
-                let deleteKey = cache.sorted { $0.value < $1.value }.first!.key
-                cache[deleteKey] = nil
-            }
-            
-            cache[city] = index
-        }
+
+        totalTime += cache[city] == nil ? 5 : 1
+        cache[city] = clock
+        clock += 1
     }
     
-    return time
+    return totalTime
 }
