@@ -1,23 +1,27 @@
 import Foundation
 
 func solution(_ s:String) -> [Int] {
-    var s = s
+    var s = s.dropLast(2)
     _ = s.removeFirst()
-    _ = s.removeLast()
-    _ = s.removeLast()
     
-    let arr = s.components(separatedBy: "},").map { $0.dropFirst() }.sorted(by: {$0.count < $1.count})
     var result = [Int]()
     
-    for (index, value) in arr.enumerated() {
-        if index == 0 {
-            result.append(Int(value)!)
-            continue
+    let array = s
+        .components(separatedBy: "},")
+        .map { str -> Set<Int> in
+            let temp = str[str.startIndex...]
+                .dropFirst()
+                .components(separatedBy: ",")
+                .map { Int($0)! }
+            return Set(temp)
         }
-        
-        let subArr = Set(value.components(separatedBy: ",").map {Int($0)!})
-        let nextNum = subArr.subtracting(result).first!
-        result.append(nextNum)
+        .sorted {
+            $0.count < $1.count
+        }
+
+    for value in array {
+        let element = value.subtracting(result).first!
+        result.append(element)
     }
     
     return result
