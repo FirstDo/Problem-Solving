@@ -1,40 +1,52 @@
 import Foundation
 
-func makeDict(_ str: String) -> [String: Int] {
-    let str = Array(str)
-    let len = str.count
-    
-    var result = [String: Int]()
-    
-    for i in 0..<len-1 where str[i].isLetter && str[i+1].isLetter {
-        let key = String([str[i], str[i+1]]).lowercased()
-        if result[key] == nil { result[key] = 0 }
-        result[key]! += 1
-    }
-    
-    return result
+private func makeElementDicts(array: [Character]) -> [String: Int] {
+  var result = [String]()
+  
+  for i in 0..<array.count - 1 {
+    result.append(String(array[i...i+1]))
+  }
+  
+  result = result.filter {
+    $0.first!.isLetter && $0.last!.isLetter
+  }
+
+  var dicts = [String: Int]()
+  
+  result.forEach {
+    dicts[$0] = (dicts[$0] ?? 0) + 1
+  }
+  
+  return dicts
 }
 
 func solution(_ str1:String, _ str2:String) -> Int {
-    let mux: Double = 65536
-    
-    let s1 = makeDict(str1)
-    let s2 = makeDict(str2)
-    
-    let s1Key = Set(s1.keys.map { String($0) })
-    let s2Key = Set(s2.keys.map { String($0) })
-    
-    let commonKey = s1Key.intersection(s2Key)
-    let sumKey = s1Key.union(s2Key)
-    
-    let intersectionCount = commonKey.reduce(0) { partialResult, key in
-        partialResult + min(s1[key]!, s2[key]!)
+  
+  let dicts1 = makeElementDicts(array: Array(str1.lowercased()))
+  let dicts2 = makeElementDicts(array: Array(str2.lowercased()))
+  
+  // 교집합 구하기
+  var intersectionCount = 0
+  
+  dicts1.keys.forEach { key in
+    if let value = dicts2[key] {
+      intersectionCount += min(value, dicts1[key]!)
     }
-    
-    let unionCount = sumKey.reduce(0) { partialResult, key in
-        partialResult + max(s1[key] ?? 0, s2[key] ?? 0)
-    }
-    
-    if unionCount == 0 { return Int(mux) }
-    return Int(Double(intersectionCount)/Double(unionCount) * mux)
+  }
+  
+  // 합집합 구하기
+  
+  var unionCount = 0
+  
+  let keys = Set(Array(dicts1.keys) + Array(dicts2.keys))
+  
+  keys.forEach { key in
+    unionCount += max((dicts1[key] ?? 0), (dicts2[key] ?? 0))
+  }
+  
+  if unionCount == 0 && intersectionCount == 0 {
+    return 65536
+  }
+  
+  return Int(Double(intersectionCount) / Double(unionCount) * 65536)
 }
