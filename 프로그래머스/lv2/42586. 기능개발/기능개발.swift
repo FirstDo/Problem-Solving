@@ -1,10 +1,14 @@
 import Foundation
 
-final class Queue<T> {
-    var input = [T]()
-    var output = [T]()
+final class Queue<Element> {
+    private var input = [Element]()
+    private var output = [Element]()
     
-    var front: T {
+    var isEmpty: Bool {
+        input.isEmpty && output.isEmpty
+    }
+    
+    var front: Element {
         if output.isEmpty {
             output = input.reversed()
             input.removeAll()
@@ -13,50 +17,54 @@ final class Queue<T> {
         return output.last!
     }
     
-    var isEmpty: Bool {
-        return input.isEmpty && output.isEmpty
-    }
-    
-    func enqueue(_ element: T) {
+    func enQueue(_ element: Element) {
         input.append(element)
     }
     
-    @discardableResult
-    func dequeue() -> T {
+    func deQueue() -> Element? {
         if output.isEmpty {
             output = input.reversed()
             input.removeAll()
         }
         
-        return output.removeLast()
+        return output.popLast()
     }
 }
 
-func solution(_ progresses:[Int], _ speeds:[Int]) -> [Int] {
-    let queue = Queue<(Int,Int)>()
-    zip(progresses, speeds).forEach { queue.enqueue(($0.0, $0.1)) }
 
+func solution(_ progresses:[Int], _ speeds:[Int]) -> [Int] {
     
+    var time = 0
     var result = [Int]()
-    var day = 0
+    
+    let queue = Queue<(Int, Int)>()
+    
+    zip(progresses, speeds).forEach {
+        queue.enQueue(($0, $1))
+    }
     
     while !queue.isEmpty {
-        var doneTask = 0
-        day += 1
+        var taskCount = 0
+        time += 1
         
-        while !queue.isEmpty {
-            let (progress, speed) =  queue.front
+        let (progress, speed) = queue.front
             
-            if progress + speed * day >= 100 {
-                queue.dequeue()
-                doneTask += 1
-            } else {
-                break
+        if progress + speed * time >= 100 {
+            _ = queue.deQueue()!
+            taskCount += 1
+            
+            while !queue.isEmpty {
+                let (nextProgress, nextSpeed) = queue.front
+                
+                if nextProgress + nextSpeed * time >= 100 {
+                    _ = queue.deQueue()!
+                    taskCount += 1
+                } else {
+                    break
+                }
             }
-        }
-        
-        if doneTask != 0 {
-            result.append(doneTask)
+            
+            result.append(taskCount)
         }
     }
     
