@@ -1,36 +1,28 @@
 import Foundation
 
 func solution(_ record:[String]) -> [String] {
-    var userNameDict = [String: String]()
-    var result = [(uuid: String, state: String)]()
+  
+  var result = [(type: String, uid: String)]()
+  var nameDB = [String: String]()
+  
+  for line in record {
+    let t = line.components(separatedBy: " ")
     
-    for r in record {
-        let r = r.components(separatedBy: " ")
-        
-        let state = r[0]
-        let uuid = r[1]
-        let name = r[safe: 2] ?? ""
-        
-        switch state {
-        case "Enter":
-            userNameDict[uuid] = name
-            result.append((uuid, "들어왔습니다."))
-        case "Leave":
-            result.append((uuid, "나갔습니다."))
-        case "Change":
-            userNameDict[uuid] = name
-        default:
-            break
-        }
+    switch t[0].lowercased() {
+    case "enter":
+      result.append(("enter", t[1]))
+      nameDB[t[1]] = t[2]
+    case "leave":
+      result.append(("leave", t[1]))
+    case "change":
+      nameDB[t[1]] = t[2]
+    default:
+      fatalError()
     }
-    
-    return result.map { (uuid, state) in
-        userNameDict[uuid]! + "님이 " + state
-    }
+  }
+  
+  return result.map { (type, uid) in
+    return nameDB[uid]! + "님이 " + (type == "enter" ? "들어왔습니다." : "나갔습니다.")
+  }
 }
 
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        return indices ~= index ? self[index] : nil
-    }
-}
