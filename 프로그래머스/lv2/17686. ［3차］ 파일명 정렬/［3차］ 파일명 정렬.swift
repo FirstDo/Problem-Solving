@@ -1,36 +1,47 @@
 import Foundation
 
-struct File: Comparable {
-    let index: Int
+struct File: CustomStringConvertible {
+    let originalString: String
     let head: String
     let number: Int
-    let originalString: String
+    let id: Int
     
-    static func < (lhs: File, rhs: File) -> Bool {
-        if lhs.head == rhs.head {
-            if lhs.number == rhs.number {
-                return lhs.index < rhs.index
-            } else {
-                return lhs.number < rhs.number
-            }
-            
-        } else {
-            return lhs.head < rhs.head
-        }
+    var description: String {
+        return "head: \(head)\nnumber: \(number)\nid: \(id)\n"
     }
 }
 
+func parse(str: EnumeratedSequence<[String]>.Element) -> File {
+    let index = str.offset
+    let file = Array(str.element)
+    
+    let numberIndex = file.firstIndex { $0.isNumber }!
+    let tailIndex = file[numberIndex...].firstIndex { !$0.isNumber } ?? file.count
+    
+    return File(
+        originalString: str.element,
+        head: String(file[0..<numberIndex]).lowercased(),
+        number: Int(String(file[numberIndex..<tailIndex]))!,
+        id: index
+    )
+}
+
 func solution(_ files:[String]) -> [String] {
-    let files = files.enumerated().map { (index, file) -> File in
-        let fileArr = Array(file)
-        let i = fileArr.firstIndex { $0.isNumber }!
-        let j = fileArr[i...].firstIndex { !$0.isNumber } ?? fileArr.count
-        
-        let head = String(fileArr[0..<i]).lowercased()
-        let number = String(fileArr[i..<j]).count > 5 ? String(String(fileArr[i..<j]).dropLast(String(fileArr[i..<j]).count - 5)) : String(fileArr[i..<j])
-        
-        return File(index: index, head: head, number: Int(number)!, originalString: String(fileArr))
+    
+    var parsedFile = files.enumerated().map(parse)
+    
+    parsedFile.sort { f1, f2 in
+        if f1.head.lowercased() == f2.head.lowercased() {
+            if f1.number == f2.number {
+                return f1.id < f2.id
+            } else {
+                return f1.number < f2.number
+            }
+            
+        } else {
+            return f1.head.lowercased() < f2.head.lowercased()
+        }
     }
     
-    return files.sorted(by: <).map(\.originalString)
+    return parsedFile.map { $0.originalString }
 }
