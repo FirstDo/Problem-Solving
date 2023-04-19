@@ -1,42 +1,41 @@
+
 import Foundation
 
-var dict = [String: Int]()
+var dicts = [String: Int]()
+var visit = Array(repeating: false, count: 20)
 
-// nCk 를 모두 구해서 dict에 저장
-func combination(_ str: [Character], _ target: Int) {
-    let len = str.count
+func combinations(order: [String], setMenu: String, index: Int, depth: Int, len: Int) {
+    if depth >= len { return }
     
-    func combi(_ index: Int, _ depth: Int, _ temp: String) {
-        if target == depth {
-            if dict[temp] == nil { dict[temp] = 0}
-            dict[temp]! += 1
-        }
-        
-        for i in index..<len {
-            combi(i + 1, depth + 1, temp + String(str[i]))
+    for i in index..<len {
+        if visit[i] == false {
+            visit[i] = true
+            
+            let newMenu = setMenu + order[i]
+            if dicts[newMenu] == nil { dicts[newMenu] = 0 }
+            dicts[newMenu]! += 1
+            
+            combinations(order: order, setMenu: newMenu, index: i, depth: depth + 1, len: len)
+            visit[i] = false
         }
     }
-    
-    combi(0, 0, "")
 }
 
 func solution(_ orders:[String], _ course:[Int]) -> [String] {
-    var result = [String]()
-    
-    for k in course {
-        for order in orders where order.count >= k {
-            combination(Array(order).sorted(by: <), k)
-        }
+    for order in orders {
+        combinations(order: order.map {String($0)}.sorted(), setMenu: "", index: 0, depth: 0, len: order.count)
+        visit = Array(repeating: false, count: 20)
     }
     
-    for k in course {
-        let sortedDict = dict.filter { $0.key.count == k && $0.value >= 2 }.sorted { $0.value > $1.value }
-        
-        if sortedDict.isEmpty { continue }
-        
-        let maxValue = sortedDict.first!.value
-        result.append(contentsOf: sortedDict.filter { $0.value == maxValue }.map { $0.key})
+    var answers = [String]()
+    
+    dicts = dicts.filter { $0.value >= 2 }
+    
+    for count in course {
+        let targetDicts = dicts.filter { $0.key.count == count }
+        let maxValue = targetDicts.values.max()
+        answers += targetDicts.filter { $0.value == maxValue }.map { $0.key }
     }
     
-    return result.sorted(by: <)
+    return answers.sorted()
 }
