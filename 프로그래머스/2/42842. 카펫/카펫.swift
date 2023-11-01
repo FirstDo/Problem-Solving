@@ -2,16 +2,13 @@ import Foundation
 
 func solution(_ brown:Int, _ yellow:Int) -> [Int] {
   
-  let multi = brown + yellow
-  let sum = (brown + yellow + 4 - yellow) / 2
-  
-  for height in 1..<sum {
-    let width = sum - height
-    
-    if height * width == multi {
-      return [width, height]
+  for height in 1...yellow where yellow % height == 0 {
+    let width = yellow / height
+
+    if (width + 2) * (height + 2) == brown + yellow {
+      return [width + 2, height + 2]
     }
   }
   
-  fatalError()
+  return []
 }
