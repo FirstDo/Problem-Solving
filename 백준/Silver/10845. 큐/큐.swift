@@ -1,7 +1,7 @@
 struct Queue<T> {
     private var leftStack: [T] = []
     private var rightStack: [T] = []
-    
+
     public init() {}
     public var isEmpty: Int {
         if leftStack.isEmpty && rightStack.isEmpty {
@@ -16,15 +16,15 @@ struct Queue<T> {
     public var rear: T? {
         return rightStack.isEmpty ? leftStack.first : rightStack.last
     }
-    
+
     public var size: Int {
         return leftStack.count + rightStack.count
     }
-    
+
     public mutating func enqueue(_ element: T) {
         rightStack.append(element)
     }
-    
+
     public mutating func dequeue() -> T? {
         if leftStack.isEmpty {
             leftStack = rightStack.reversed()
