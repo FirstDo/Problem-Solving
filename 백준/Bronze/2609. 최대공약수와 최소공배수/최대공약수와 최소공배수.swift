@@ -2,13 +2,13 @@ import Foundation
 
 func getGCD(a: Int, b: Int) -> Int {
   var (a, b) = (a, b)
-  
+
   while b != 0 {
     let r = a % b
     a = b
     b = r
   }
-  
+
   return a
 }
 
