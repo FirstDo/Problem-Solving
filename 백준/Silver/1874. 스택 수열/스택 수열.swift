@@ -19,17 +19,17 @@ func makeSequence() -> String {
     // 무조건 push
     stack.append(i)
     temp.append("+")
-    
+
     // stack의 top이 target이면 pop
     while stack.last == target.first && !stack.isEmpty {
       _ = stack.removeLast()
       _ = target.removeFirst()
-      
+
       temp.append("-")
     }
   }
-  
-  
+
+
   if stack.isEmpty && target.isEmpty {
     return temp.joined(separator: "\n")
   } else {
