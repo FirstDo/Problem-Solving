@@ -1,57 +1,53 @@
 import Foundation
-//1991번 트리순회
+
+var trees = [String: (l: String, r: String)]()
+
 let n = Int(readLine()!)!
-var tree = Array(repeating: (-1,-1), count: n)
-let const = 65
 
 for _ in 0..<n {
-	let t = readLine()!.split(separator: " ").map{Character(String($0))}
-	let (p,l,r) = (t[0],t[1],t[2])
-	
-	let parent = Int(p.asciiValue!) - const
-	if l != "." {
-		let leftChild = Int(l.asciiValue!) - const
-		tree[parent].0 = leftChild
-	}
-
-	if r != "." {
-		let rightChild = Int(r.asciiValue!) - const
-		tree[parent].1 = rightChild
-	}
+  let t = readLine()!.split(separator: " ").map {String($0)}
+  let (c, l, r) = (t[0], t[1], t[2])
+  
+  trees[c] = (l, r)
 }
 
-var number = [Int]()
-
-func inorder(_ x: Int) {
-	if x == -1 {
-		return
-	}
-	inorder(tree[x].0)
-	number.append(x)
-	inorder(tree[x].1)
-}
-func preorder(_ x: Int) {
-	if x == -1 {
-		return
-	}
-	number.append(x)
-	preorder(tree[x].0)
-	preorder(tree[x].1)
-}
-func postorder(_ x: Int) {
-	if x == -1 {
-		return
-	}
-	postorder(tree[x].0)
-	postorder(tree[x].1)
-	number.append(x)
+func preorder(_ node: String) {
+  print(node, terminator: "")
+  if trees[node]!.l != "." {
+    preorder(trees[node]!.l)
+  }
+  
+  if trees[node]!.r != "." {
+    preorder(trees[node]!.r)
+  }
 }
 
+func inorder(_ node: String) {
+  if trees[node]!.l != "." {
+    inorder(trees[node]!.l)
+  }
+  
+  print(node, terminator: "")
+  
+  if trees[node]!.r != "." {
+    inorder(trees[node]!.r)
+  }
+}
 
-preorder(0)
-inorder(0)
-postorder(0)
+func postOrder(_ node: String) {
+  if trees[node]!.l != "." {
+    postOrder(trees[node]!.l)
+  }
+  
+  if trees[node]!.r != "." {
+    postOrder(trees[node]!.r)
+  }
+  
+  print(node, terminator: "")
+}
 
-print(number[0..<n].map{String(UnicodeScalar($0+const)!)}.joined())
-print(number[n..<n*2].map{String(UnicodeScalar($0+const)!)}.joined())
-print(number[n*2..<n*3].map{String(UnicodeScalar($0+const)!)}.joined())
+preorder("A")
+print()
+inorder("A")
+print()
+postOrder("A")
