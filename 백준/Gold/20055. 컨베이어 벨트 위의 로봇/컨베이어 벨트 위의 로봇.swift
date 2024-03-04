@@ -1,90 +1,74 @@
-//컨베이어 벨트 위의 로봇
+import Foundation
 
 struct Belt {
-    var upBelt: [(Int, Bool)]
-    var downBelt: [(Int,Bool)]
-    let len: Int
-
-    var count: Int {
-        return upBelt.filter{$0.0 == 0}.count + downBelt.filter{$0.0 == 0}.count
+  var up: [Int] // 내구도
+  var down: [Int]
+  
+  var robots: [Bool] // 로봇여부
+  
+  init(arr: [Int]) {
+    let len = arr.count / 2
+    self.up = Array(arr[0..<len])
+    self.down = Array(arr[len...].reversed())
+    
+    self.robots = Array(repeating: false, count: len)
+  }
+  
+  var numberOfZero: Int {
+    (up + down).filter { $0 == 0 }.count
+  }
+  
+  mutating func rotate() {
+    robots.insert(false, at: 0)
+    robots.removeLast()
+    
+    let upTarget = up.removeLast()
+    down.append(upTarget)
+    
+    let downTarget = down.removeFirst()
+    up.insert(downTarget, at: 0)
+    
+    // 로봇이 내리는 위치에 있으면 바로 내림
+    if robots.last == true {
+      robots[robots.count - 1] = false
     }
-
-    mutating func moveBelt() {
-        //N번째 벨트 이등
-        var nData = upBelt.last!
-        nData.1 = false
-
-        //0 - N-1 up 벨트 이동
-        for i in stride(from: len - 2, through: 0, by: -1) {
-            upBelt[i+1] = upBelt[i]
-        }
-
-        //2N 벨트 이동
-        upBelt[0] = downBelt[0]
-
-        // N+1 ~ 2N - 1 벨트이동
-        for i in 1..<len {
-            downBelt[i-1] = downBelt[i]
-        }
-        
-        // N -> N+1 이동
-        downBelt[len-1] = nData
+  }
+  
+  mutating func moveRobot() {
+    for index in stride(from: robots.count - 2, through: 0, by: -1) {
+      // 현재칸에 로봇이 있고, 다음칸에 로봇이 없고, 다음칸에 내구도가 있을경우 이동
+      if robots[index] && robots[index+1] == false && up[index+1] > 0 {
+        robots[index] = false
+        robots[index+1] = true
+        up[index+1] -= 1
+      }
     }
-
-    mutating func moveRobot() {
-        //N번째칸 로봇제거
-        upBelt[len-1].1 = false
-
-        //로봇의 이동
-        for i in stride(from: len - 2, through: 0, by: -1) {
-            //로봇이 없다면 컨티뉴
-            if upBelt[i].1 == false {continue}
-
-            //옮길수 있으면 로봇 옮기기
-            if upBelt[i+1].0 > 0 && upBelt[i+1].1 == false {
-                upBelt[i+1].1 = true
-                upBelt[i+1].0 -= 1
-                upBelt[i].1 = false
-            }
-        }
-
-        if upBelt[0].0 > 0 {
-            upBelt[0].1 = true
-            upBelt[0].0 -= 1
-        }
+  }
+  
+  mutating func appendRobot() {
+    if up[0] > 0 {
+      robots[0] = true
+      up[0] -= 1
     }
-
+  }
 }
 
-let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-let (n,k) = (t[0],t[1])
-let arr = readLine()!.split(separator: " ").map{Int(String($0))!}
+let nk = readLine()!.split(separator: " ").map {Int($0)!}
+let (n, k) = (nk[0], nk[1])
 
-let len = arr.count
+let arr = readLine()!.split(separator: " ").map {Int($0)!}
 
-var up = [(Int,Bool)]()
-var down = [(Int,Bool)]()
+var belts = Belt(arr: arr)
 
-for i in 0 ..< len / 2 {
-    up.append((arr[i], false))
-}
-
-for i in stride(from: len - 1, through: len/2, by: -1) {
-    down.append((arr[i], false))
-}
-
-var belt = Belt(upBelt: up, downBelt: down, len: len/2)
-
-var cnt = 1
+var level = 1
 
 while true {
-    belt.moveBelt()
-    belt.moveRobot()
-    if belt.count >= k {
-        break
-    }
-    cnt += 1
+  belts.rotate()
+  belts.moveRobot()
+  belts.appendRobot()
+  
+  if belts.numberOfZero >= k { break }
+  level += 1
 }
 
-
-print(cnt)
+print(level)
