@@ -1,16 +1,19 @@
 import Foundation
 
 func solution(_ s:String) -> Bool {
-  var cnt = 0
+  var stack = [Character]()
   
   for ch in s {
     if ch == "(" {
-      cnt += 1
-    } else {
-      if cnt == 0 { return false }
-      cnt -= 1
+      stack.append(ch)
+    }
+    else if ch == ")" && stack.last == "(" {
+      stack.removeLast()
+    }
+    else {
+      return false
     }
   }
   
-  return cnt == 0
+  return stack.isEmpty
 }
