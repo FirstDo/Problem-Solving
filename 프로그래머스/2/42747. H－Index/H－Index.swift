@@ -1,26 +1,24 @@
 import Foundation
 
 func solution(_ citations:[Int]) -> Int {
-  let citations = citations.sorted()
-  
-  return lowerBound(arr: citations)
-}
-
-func lowerBound(arr: [Int]) -> Int {
   var low = 0
-  var high = arr.count
+  var high = citations.max()!
+  
   var answer = 0
   
   while low <= high {
-    let mid = (low + high) / 2
-
-    let count = arr.filter { $0 >= mid }.count
+    let h = (low + high) / 2
     
-    if mid <= count {
-      low = mid + 1
-      answer = max(answer, mid)
+    print(low, high, h)
+    
+    // h번 이상 인용된 논문이 h편 이상인지 여부
+    let count = citations.filter { $0 >= h }.count
+    
+    if count >= h {
+      answer = max(answer, h)
+      low = h + 1
     } else {
-      high = mid - 1
+      high = h - 1
     }
   }
   
