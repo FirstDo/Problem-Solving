@@ -2,20 +2,16 @@ import Foundation
 
 func solution(_ n:Int) -> Int {
   var n = n
-  var count = 0
+  var cnt = 0
   
-  while true {
-    if n == 0 {
-      return count
-    }
-    
+  while n != 0 {
     if n % 2 == 0 {
       n /= 2
     } else {
       n -= 1
-      count += 1
+      cnt += 1
     }
   }
   
-  return count
+  return cnt
 }
