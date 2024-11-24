@@ -1,11 +1,12 @@
 import Foundation
 
-func solution(_ s:String) -> Int{
+func solution(_ s:String) -> Int {
+  
   var stack = [Character]()
-
+  
   for ch in s {
     if stack.last == ch {
-      stack.removeLast()
+      _ = stack.removeLast()
     } else {
       stack.append(ch)
     }
