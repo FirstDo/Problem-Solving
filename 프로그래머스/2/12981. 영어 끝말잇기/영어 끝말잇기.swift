@@ -1,29 +1,33 @@
 import Foundation
 
 func solution(_ n:Int, _ words:[String]) -> [Int] {
-  var dicts = [String: Bool]()
-  var lastWord = ""
+  var index = 0
+  var wordSet = Set<String>()
+  var result = [0, 0]
   
-  var personID = 1
-  var count = 1
-  
-  for word in words {
-    // 이전에 안나왔고, 한글자 아니고, 이전단어 마지막과 같으면
-    if lastWord == "" || (dicts[word] == nil && word.count != 1 && word.first! == lastWord.last! ) {
-      dicts[word] = true
-      lastWord = word
-      
-      personID += 1
-      
-      if personID > n {
-        personID = 1
-        count += 1
-      }
-      
-    } else {
-      return [personID, count]
+  for i in 0..<words.count {
+    if i == 0 && words.count <= 1 {
+      result = [index%n + 1, index/n + 1]
+      break
     }
+    
+    /*
+     - 한글자 X
+     - 이전단어 끝글자 = 지금단어 첫글자
+     - 이전에 나오지 않은 단어
+     */
+    if i != 0 &&
+       (words[i].count <= 1 ||
+       words[i-1].last != words[i].first ||
+       wordSet.contains(words[i]))
+    {
+      result = [index%n + 1, index/n + 1]
+      break
+    }
+    
+    wordSet.insert(words[i])
+    index += 1
   }
   
-  return [0, 0]
+  return result
 }
