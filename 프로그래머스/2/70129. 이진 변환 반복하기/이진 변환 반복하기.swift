@@ -1,24 +1,24 @@
 import Foundation
 
 func solution(_ s:String) -> [Int] {
-  if s == "1" { return [0, 0] }
   
-  var s = Array(s)
+  var x = s.map { String($0) }
   var cnt = 0
-  var removedZero = 0
+  var zeroCnt = 0
+  
   while true {
-    // 0제거
-    let sLen = s.count
-    let onlyZeroSLen = s.filter { $0 == "0" }.count
+    if x == ["1"] { break }
+    
+    // x의 모든 0을 제거
+    let len = x.count
+    x = x.filter { $0 == "1" }
     
     cnt += 1
-    removedZero += onlyZeroSLen
+    zeroCnt += len - x.count
     
-    // 길이를 이진변환
-    s = Array(String(sLen - onlyZeroSLen, radix: 2))
-    
-    if s == ["1"] { return [cnt, removedZero] }
+    // x의 길이를 이진법으로 바꾸기
+    x = String(x.count, radix: 2).map { String($0) }
   }
   
-  return [cnt, removedZero]
+  return [cnt, zeroCnt]
 }
