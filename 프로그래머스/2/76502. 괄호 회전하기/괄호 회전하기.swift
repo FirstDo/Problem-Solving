@@ -1,33 +1,37 @@
 import Foundation
 
-func solution(_ s:String) -> Int {
-  let len = s.count
-  let doubleS = Array(s).map { String($0) } + Array(s).map { String($0) }
-  var result = 0
-  
-  for i in 0..<len {
-    let subStr = doubleS[i..<i+len].joined()
-    if isRightString(subStr) {
-      result += 1
-    }
-  }
-  
-  return result
-}
-
-private func isRightString(_ str: String) -> Bool {
-  var stack = [Character]()
+func isCorrectString(str: [String]) -> Bool {
+  var stack = [String]()
   
   for ch in str {
-    switch (stack.last, ch) {
-    case (_, "["), (_, "{"), (_, "("):
+    if ch == "[" || ch == "{" || ch == "(" {
       stack.append(ch)
-    case ("[","]"), ("{","}"), ("(",")"):
-      stack.removeLast()
-    default:
+    } else if ch == "]", stack.last == "[" {
+      _ = stack.removeLast()
+    } else if ch == "}", stack.last == "{" {
+      _ = stack.removeLast()
+    } else if ch == ")", stack.last == "(" {
+      _ = stack.removeLast()
+    } else {
       return false
     }
   }
   
   return stack.isEmpty
+}
+
+func solution(_ s:String) -> Int {
+  let s = (s + s).map { String($0) }
+  let len = s.count
+  
+  var cnt = 0
+  
+  for i in 0..<len/2 {
+    let target = Array(s[i..<i+len/2])
+    if isCorrectString(str: target) {
+      cnt += 1
+    }
+  }
+  
+  return cnt
 }
