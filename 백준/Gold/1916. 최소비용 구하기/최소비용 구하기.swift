@@ -1,68 +1,59 @@
-struct Heap<T: Comparable> {
-	var nodes: [T] = []
-	let compare: (T,T) -> Bool
-
-	init(compare: @escaping (T,T) -> Bool) {
-		self.compare = compare
-	}
-	
-	var isEmpty: Bool {
-		return nodes.isEmpty
-	}
-
-	mutating func insert(_ element: T) {
-		var index = nodes.count
-		nodes.append(element)
-
-		while index > 0, compare(nodes[(index-1)/2], nodes[index]) {
-			nodes.swapAt(index, (index-1)/2)
-			index = (index-1)/2
-		}
-	}
-
-	mutating func delete() -> T? {
-		guard !nodes.isEmpty else {return nil}
-		if nodes.count == 1 {
-			return nodes.removeFirst()
-		}
-
-		let result = nodes.first
-		nodes.swapAt(0, nodes.count - 1)
-		_ = nodes.popLast()
-
-		var index = 0
-
-		while index < nodes.count {
-			let left = index * 2 + 1
-			let right = left + 1
-
-			if right < nodes.count {
-				if compare(nodes[left], nodes[right]), compare(nodes[index], nodes[right]) {
-					nodes.swapAt(right, index)
-					index = right
-				} else if compare(nodes[index], nodes[left]) {
-					nodes.swapAt(left,index)
-					index = left
-				} else {
-					break
-				}
-
-			} else if left < nodes.count {
-				if compare(nodes[index], nodes[left]) {
-					nodes.swapAt(left, index)
-					index = left
-				} else {
-					break
-				}
-			} else {
-				break
-			}
-		}
-		return result
-	}
-}
-
 import Foundation
+
+struct Heap<T: Comparable> {
+  private var nodes = [T]()
+  private let compare: (T, T) -> Bool
+  
+  init(compare: @escaping (T, T) -> Bool) {
+    self.compare = compare
+  }
+  
+  var isEmpty: Bool {
+    nodes.isEmpty
+  }
+  
+  mutating func insert(_ element: T) {
+    var index = nodes.count
+    nodes.append(element)
+    
+    while index > 0, compare(nodes[index], nodes[(index - 1) / 2]) {
+      nodes.swapAt(index, (index-1)/2)
+      index = (index - 1) / 2
+    }
+  }
+  
+  mutating func delete() -> T {
+    let target = nodes.first!
+    nodes.swapAt(0, nodes.count - 1)
+    _ = nodes.removeLast()
+    
+    var index = 0
+    
+    while index < nodes.count {
+      let left = index * 2 + 1
+      let right = left + 1
+      
+      var target = index
+      
+      if left < nodes.count, compare(nodes[left], nodes[index]) {
+        target = left
+      }
+      
+      if right < nodes.count, compare(nodes[right], nodes[index]) {
+        target = right
+      }
+      
+      if target == index {
+        break
+      } else {
+        nodes.swapAt(index, target)
+        index = target
+      }
+    }
+    
+    return target
+  }
+}
 
 struct Node: Comparable {
   let index: Int
@@ -81,7 +72,7 @@ func dijkstra(_ start: Int, _ end: Int, _ graph: [[(Int, Int)]]) {
   heap.insert(Node(index: start, cost: 0))
   
   while heap.isEmpty == false {
-    let cur = heap.delete()!
+    let cur = heap.delete()
     
     if dist[cur.index] < cur.cost {
       continue
