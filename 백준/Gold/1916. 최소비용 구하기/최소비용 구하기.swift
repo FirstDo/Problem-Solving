@@ -1,11 +1,9 @@
-import Foundation
-
 struct Heap<T: Comparable> {
 	var nodes: [T] = []
-	let comparer: (T,T) -> Bool
+	let compare: (T,T) -> Bool
 
-	init(comparer: @escaping (T,T) -> Bool) {
-		self.comparer = comparer
+	init(compare: @escaping (T,T) -> Bool) {
+		self.compare = compare
 	}
 	
 	var isEmpty: Bool {
@@ -16,7 +14,7 @@ struct Heap<T: Comparable> {
 		var index = nodes.count
 		nodes.append(element)
 
-		while index > 0, comparer(nodes[(index-1)/2], nodes[index]) {
+		while index > 0, compare(nodes[(index-1)/2], nodes[index]) {
 			nodes.swapAt(index, (index-1)/2)
 			index = (index-1)/2
 		}
@@ -39,10 +37,10 @@ struct Heap<T: Comparable> {
 			let right = left + 1
 
 			if right < nodes.count {
-				if comparer(nodes[left], nodes[right]), comparer(nodes[index], nodes[right]) {
+				if compare(nodes[left], nodes[right]), compare(nodes[index], nodes[right]) {
 					nodes.swapAt(right, index)
 					index = right
-				} else if comparer(nodes[index], nodes[left]) {
+				} else if compare(nodes[index], nodes[left]) {
 					nodes.swapAt(left,index)
 					index = left
 				} else {
@@ -50,7 +48,7 @@ struct Heap<T: Comparable> {
 				}
 
 			} else if left < nodes.count {
-				if comparer(nodes[index], nodes[left]) {
+				if compare(nodes[index], nodes[left]) {
 					nodes.swapAt(left, index)
 					index = left
 				} else {
@@ -64,53 +62,58 @@ struct Heap<T: Comparable> {
 	}
 }
 
-extension Heap where T: Comparable {
-	init() {
-		self.init(comparer: >)
-	}
+import Foundation
+
+struct Node: Comparable {
+  let index: Int
+  let cost: Int
+  
+  static func < (lhs: Node, rhs: Node) -> Bool {
+    return lhs.cost < rhs.cost
+  }
 }
 
-struct EdgeData: Comparable {
-	static func < (lhs: EdgeData, rhs: EdgeData) -> Bool {
-		return lhs.cost < rhs.cost
-	}
-	var node: Int
-	var cost: Int
+func dijkstra(_ start: Int, _ end: Int, _ graph: [[(Int, Int)]]) {
+  var dist = Array(repeating: Int.max, count: graph.count)
+  dist[start] = 0
+  
+  var heap = Heap<Node>(compare: <)
+  heap.insert(Node(index: start, cost: 0))
+  
+  while heap.isEmpty == false {
+    let cur = heap.delete()!
+    
+    if dist[cur.index] < cur.cost {
+      continue
+    }
+    
+    for (next, cost) in graph[cur.index] {
+      if dist[next] > cur.cost + cost {
+        dist[next] = cur.cost + cost
+        heap.insert(Node(index: next, cost: cur.cost + cost))
+      }
+    }
+  }
+  
+  print(dist[end])
 }
 
-let n = Int(readLine()!)!
-let m = Int(readLine()!)!
-
-var graph = Array(repeating: [(Int,Int)](), count: n+1)
-
-for _ in 0..<m {
-	let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-	let (a,b,c) = (t[0],t[1],t[2])
-	graph[a].append((b,c))
+func solution() {
+  let n = Int(readLine()!)!
+  let m = Int(readLine()!)!
+  
+  var graph = Array(repeating: [(Int, Int)](), count: n+1)
+  
+  for _ in 0..<m {
+    let sec = readLine()!.split(separator: " ").map {Int($0)!}
+    let (s, e, c) = (sec[0], sec[1], sec[2])
+    graph[s].append((e, c))
+  }
+  
+  let se = readLine()!.split(separator: " ").map {Int($0)!}
+  let (start, end) = (se[0], se[1])
+  
+  dijkstra(start, end, graph)
 }
 
-let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-let (start,end) = (t[0],t[1])
-
-var distance = Array(repeating: 9876543210, count: n+1)
-distance[start] = 0
-
-var heap = Heap<EdgeData>()
-heap.insert(EdgeData(node: start, cost: 0))
-
-while !heap.isEmpty {
-	let cur = heap.delete()!
-	if distance[cur.node] < cur.cost {
-		continue
-	}
-
-	for (next, d) in graph[cur.node] {
-		let dist = cur.cost + d 
-		if dist < distance[next] {
-			distance[next] = dist
-			heap.insert(EdgeData(node: next, cost: dist))
-		}
-	}
-}
-
-print(distance[end])
+solution()
