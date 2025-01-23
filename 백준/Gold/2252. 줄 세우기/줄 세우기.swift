@@ -1,40 +1,70 @@
 import Foundation
-//2252번 줄세우기기
 
-//토플로지 솔트
-
-let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-let (N,M) = (t[0],t[1])
-
-var indegree = Array(repeating: 0, count: N+1)
-var graph = Array(repeating: [Int](), count: N+1)
-var visited = Array(repeating: false, count: N+1)
-
-for _ in 0..<M {
-	let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-	let (a,b) = (t[0],t[1])
-	indegree[b] += 1
-	graph[a].append(b)
+struct Queue<T> {
+  var elements: [T]
+  var index = 0
+  
+  init(_ elements: [T] = []) {
+    self.elements = elements
+  }
+  
+  var isEmpty: Bool {
+    !(elements.count > index)
+  }
+  
+  mutating func enqueue(_ element: T) {
+    elements.append(element)
+  }
+  
+  mutating func dequeue() -> T {
+    index += 1
+    return elements[index - 1]
+  }
 }
 
-var queue = [Int]()
-var idx = 0
-for i in 1...N {
-	if indegree[i] == 0 {queue.append(i)}
+func topologySort(_ graph: [[Int]]) {
+  let n = graph.count
+  var indegree = Array(repeating: 0, count: n)
+  
+  for nodeList in graph {
+    nodeList.forEach { indegree[$0] += 1 }
+  }
+  
+  var queue = Queue<Int>()
+  var answer = [Int]()
+  
+  for i in 1..<n where indegree[i] == 0 {
+    queue.enqueue(i)
+  }
+  
+  while queue.isEmpty == false {
+    let cur = queue.dequeue()
+    answer.append(cur)
+    
+    for next in graph[cur] {
+      indegree[next] -= 1
+      if indegree[next] == 0 {
+        queue.enqueue(next)
+      }
+    }
+  }
+  
+  print(answer.map {String($0)}.joined(separator: " "))
 }
-var ans = [String]()
 
-while queue.count > idx {
-	let cur = queue[idx]
-	idx += 1
-	ans.append(String(cur))
-
-	for next in graph[cur] {
-		indegree[next] -= 1
-		if indegree[next] == 0 {
-			queue.append(next)
-		}
-	}
+func solution() {
+  let (nm) = readLine()!.split(separator: " ").map {Int($0)!}
+  let (n, m) = (nm[0], nm[1])
+  
+  var graph = Array(repeating: [Int](), count: n+1)
+  
+  for _ in 0..<m {
+    let ab = readLine()!.split(separator: " ").map {Int($0)!}
+    let (a, b) = (ab[0], ab[1])
+    graph[a].append(b)
+  }
+  
+  topologySort(graph)
 }
 
-print(ans.joined(separator: " "))
+solution()
