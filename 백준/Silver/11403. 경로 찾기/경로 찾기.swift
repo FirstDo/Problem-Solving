@@ -1,29 +1,31 @@
-let n = Int(readLine()!)!
-var graph: [[Int]] = []
-let inf: Int = 100 * 100 + 1
+import Foundation
 
-for _ in 0..<n {
-    let line = readLine()!.split(separator: " ").map{Int(String($0))!}.map{$0==0 ? inf:$0}
-    graph.append(line)
-}
-
-func floydWarshall() {
-    for k in 0..<n {
-        for from in 0..<n {
-            for to in 0..<n {
-                graph[from][to] = min(graph[from][k] + graph[k][to], graph[from][to])
-            }
+func floydWarshall(_ graph: [[Int]]) {
+  let n = graph.count
+  var temp = graph
+  
+  for k in 0..<n {
+    for i in 0..<n {
+      for j in 0..<n {
+        if temp[i][j] == 0 && temp[i][k] == 1 && temp[k][j] == 1 {
+          temp[i][j] = 1
         }
+      }
     }
+  }
+  
+  for t in temp {
+    print(t.map { String($0) }.joined(separator: " "))
+  }
 }
 
-floydWarshall()
-var ans = ""
-for i in 0..<n {
-    let line = graph[i].map { $0 == inf ? 0:1}
-    for e in line {
-        print(e, terminator: " ")
-    }
-    print()
+func solution() {
+  let n = Int(readLine()!)!
+  let graph = (0..<n)
+    .map { _ in readLine()!.split(separator: " ").map{Int($0)!} }
+  floydWarshall(graph)
+  
+  
 }
 
+solution()
