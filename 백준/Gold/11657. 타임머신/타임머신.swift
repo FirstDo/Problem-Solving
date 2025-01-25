@@ -1,45 +1,55 @@
-//11657번 타임머신
+import Foundation
 
-let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-let (N,M) = (t[0],t[1])
+let INF = Int.max / 10
 
-let INF = 9876543210
-
-var edges = [(Int,Int,Int)]()
-var dist = Array(repeating: INF, count: N+1)
-
-for _ in 0..<M {
-	let t = readLine()!.split(separator: " ").map{Int(String($0))!}
-	let (a,b,c) = (t[0],t[1],t[2])
-	edges.append((a,b,c))
+struct Edge {
+  let from, to, cost: Int
 }
 
-func bellmanFord(_ start: Int) -> Bool{
-	dist[start] = 0
-	for i in 0..<N {
-		for j in 0..<M {
-			let (node, nxNode, cost) = edges[j]
-
-			if dist[node] != INF && dist[nxNode] > dist[node] + cost {
-				dist[nxNode] = dist[node] + cost
-
-				if i == N-1 {
-					return true
-				}
-			}
-		}
-	}
-	return false
+func bellmanFord(_ n: Int, _ edges: [Edge]) {
+  // 1. 초기화
+  var distance = Array(repeating: INF, count: n+1)
+  distance[1] = 0
+  
+  var hasNegativeCycle = false
+  
+  // 2. 간선을 반복하며 거리갱신 (새로운 간선을 사용했을때 거리가 단축된다면 적용) n-1번 반복
+  for i in 1...n {
+    for edge in edges where distance[edge.from] != INF {
+      if distance[edge.to] > distance[edge.from] + edge.cost {
+        distance[edge.to] = distance[edge.from] + edge.cost
+        
+        // n번째에도 거리가 갱신이 된다면, 음의 사이클이 있는것
+        if i == n {
+          hasNegativeCycle = true
+        }
+      }
+    }
+  }
+  
+  
+  if hasNegativeCycle {
+    print(-1)
+  } else {
+    distance[2...].forEach {
+      print($0 == INF ? -1 : $0)
+    }
+  }
 }
 
-if bellmanFord(1) {
-	print(-1)
-} else {
-	for i in 2...N {
-		if dist[i] == INF {
-			print(-1)
-		} else {
-			print(dist[i])
-		}
-	}
+func solution()  {
+  let nm = readLine()!.split(separator: " ").map{Int($0)!}
+  let (n, m) = (nm[0], nm[1])
+  
+  var edges = [Edge]()
+  
+  for _ in 0..<m {
+    let abc = readLine()!.split(separator: " ").map{Int($0)!}
+    let (a, b, c) = (abc[0], abc[1], abc[2])
+    edges.append(.init(from: a, to: b, cost: c))
+  }
+  
+  bellmanFord(n, edges)
 }
+
+solution()
